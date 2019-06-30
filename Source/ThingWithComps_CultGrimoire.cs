@@ -5,6 +5,7 @@ using System.Text;
 using RimWorld;
 using Verse;
 using Verse.Sound;
+using Multiplayer.API;
 
 namespace CultOfCthulhu
 {
@@ -28,12 +29,9 @@ namespace CultOfCthulhu
                 yield break;
             }
             Command_Action command_Action = new Command_Action();
-            command_Action.action = delegate
+            command_Action.action = delegate 
             {
-                SoundDefOf.SelectDesignator.PlayOneShotOnCamera();
-                //des.SetStuffDef(stuff);
-                des.ProcessInput(new UnityEngine.Event());
-                Find.DesignatorManager.Select(des);
+                BuildFKC(des);
             };
             command_Action.defaultLabel = "CommandBuildFKC".Translate();
             command_Action.defaultDesc = "CommandBuildFKCDesc".Translate();
@@ -53,7 +51,14 @@ namespace CultOfCthulhu
             yield return command_Action;
             yield break;
         }
-
+        [SyncMethod]
+        private void BuildFKC(Designator_Build des)
+        {
+            SoundDefOf.SelectDesignator.PlayOneShotOnCamera();
+            //des.SetStuffDef(stuff);
+            des.ProcessInput(new UnityEngine.Event());
+            Find.DesignatorManager.Select(des);
+        }
 
         private static Designator_Build FindDesignator(BuildableDef buildable)
         {

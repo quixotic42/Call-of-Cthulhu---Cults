@@ -4,6 +4,7 @@ using UnityEngine;
 using Verse;
 using Verse.AI;
 using RimWorld;
+using Multiplayer.API;
 
 namespace CultOfCthulhu
 {

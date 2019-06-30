@@ -5,6 +5,7 @@ using System.Diagnostics;
 using UnityEngine;
 using Verse;
 using RimWorld;
+using Multiplayer.API;
 
 namespace CultOfCthulhu
 {
@@ -138,17 +139,7 @@ namespace CultOfCthulhu
                 command_Action.icon = CompLaunchablePawn.LaunchCommandTex;
                 command_Action.action = delegate
                 {
-                    if (this.AnyInGroupHasAnythingLeftToLoad)
-                    {
-                        Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("ConfirmSendNotCompletelyLoadedPods".Translate(new object[]
-                        {
-                            this.FirstThingLeftToLoadInGroup.LabelCap
-                        }), new Action(this.StartChoosingDestination), false, null));
-                    }
-                    else
-                    {
-                        this.StartChoosingDestination();
-                    }
+                    DoLaunchGroup();
                 };
                 if (this.AnyInGroupIsUnderRoof)
                 {
@@ -165,26 +156,47 @@ namespace CultOfCthulhu
                     command_Action.icon = CompLaunchablePawn.LaunchCommandTex;
                     command_Action.action = delegate
                     {
-                        if (this.AnyInGroupHasAnythingLeftToLoad)
-                        {
-                            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("ConfirmSendNotCompletelyLoadedPods".Translate(new object[]
-                            {
-                            this.FirstThingLeftToLoadInGroup.LabelCap
-                            }), new Action(this.StartChoosingDestination), false, null));
-                        }
-                        else
-                        {
-                            this.StartChoosingDestination();
-                        }
+                        DebugLaunchGroup();
                     };
                     if (this.AnyInGroupIsUnderRoof)
                     {
                         command_Action.Disable("CommandLaunchGroupFailUnderRoof".Translate());
                     }
                     yield return command_Action;
-                
+
             }
             yield break;
+        }
+        [SyncMethod]
+        private void DoLaunchGroup()
+        {
+            if (this.AnyInGroupHasAnythingLeftToLoad)
+            {
+                Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("ConfirmSendNotCompletelyLoadedPods".Translate(new object[]
+                {
+                            this.FirstThingLeftToLoadInGroup.LabelCap
+                }), new Action(this.StartChoosingDestination), false, null));
+            }
+            else
+            {
+                this.StartChoosingDestination();
+            }
+        }
+
+        [SyncMethod]
+        private void DebugLaunchGroup()
+        {
+            if (this.AnyInGroupHasAnythingLeftToLoad)
+            {
+                Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("ConfirmSendNotCompletelyLoadedPods".Translate(new object[]
+                {
+                            this.FirstThingLeftToLoadInGroup.LabelCap
+                }), new Action(this.StartChoosingDestination), false, null));
+            }
+            else
+            {
+                this.StartChoosingDestination();
+            }
         }
 
         public override string CompInspectStringExtra()
@@ -199,7 +211,7 @@ namespace CultOfCthulhu
             }
             return "ReadyForLaunch".Translate();
         }
-
+        [SyncMethod]
         public void StartChoosingDestination()
         {
             CameraJumper.TryJump(CameraJumper.GetWorldTarget(this.parent));

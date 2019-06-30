@@ -7,6 +7,7 @@ using RimWorld;
 using Verse.Sound;
 using Verse.AI;
 using UnityEngine;
+using Multiplayer.API;
 
 namespace CultOfCthulhu
 {
@@ -114,7 +115,7 @@ namespace CultOfCthulhu
             }
         }
 
-
+        [SyncMethod]
         public void MuteToggle()
         {
             this.isMuted = !this.isMuted;

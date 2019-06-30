@@ -7,6 +7,7 @@ using Verse.AI.Group;
 using Verse.Sound;
 using RimWorld;
 using System.Linq;
+using Multiplayer.API;
 
 namespace CultOfCthulhu
 {
@@ -210,8 +211,7 @@ namespace CultOfCthulhu
                     icon = CompTransporterPawn.CancelLoadCommandTex,
                     action = delegate
                     {
-                        SoundDefOf.Designate_Cancel.PlayOneShotOnCamera();
-                        this.CancelLoad();
+                        DoCancelLoad();
                     }
                 };
             }
@@ -250,6 +250,12 @@ namespace CultOfCthulhu
             //}
             yield return Command_LoadToTransporterPawn;
             yield break;
+        }
+        [SyncMethod]
+        private void DoCancelLoad()
+        {
+            SoundDefOf.Designate_Cancel.PlayOneShotOnCamera();
+            this.CancelLoad();
         }
 
         public override void PostDeSpawn(Map map)

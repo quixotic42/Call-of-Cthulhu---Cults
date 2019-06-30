@@ -21,7 +21,8 @@ using RimWorld;            // RimWorld specific functions are found here (like '
 using RimWorld.Planet;
 using System.Linq;
 //using RimWorld.Planet;   // RimWorld specific functions for world creation
-//using RimWorld.SquadAI;  // RimWorld specific functions for squad brains 
+//using RimWorld.SquadAI;  // RimWorld specific functions for squad brains
+using Multiplayer.API;
 
 namespace CultOfCthulhu
 {
@@ -86,7 +87,7 @@ namespace CultOfCthulhu
         }
 
 
-
+        [SyncMethod]
         private void CancelWorship()
         {
             Pawn pawn = null;
@@ -133,7 +134,7 @@ namespace CultOfCthulhu
             }
             TryWorship();
         }
-
+        [SyncMethod]
         private void TryWorshipForced()
         {
             TryWorship(true);

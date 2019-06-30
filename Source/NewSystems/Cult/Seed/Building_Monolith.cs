@@ -8,6 +8,7 @@ using Verse.Sound;
 using Verse.AI;
 using UnityEngine;
 using System.Reflection;
+using Multiplayer.API;
 
 namespace CultOfCthulhu
 {
@@ -58,10 +59,7 @@ namespace CultOfCthulhu
                             {
                                 Action action0 = delegate
                                 {
-                                    Job job = new Job(CultsDefOf.Cults_Investigate, myPawn, this);
-                                    job.playerForced = true;
-                                    myPawn.jobs.TryTakeOrderedJob(job);
-                                    //mypawn.CurJob.EndCurrentJob(JobCondition.InterruptForced);
+                                    DoInvestigateJob(myPawn);
                                 };
                                 yield return new FloatMenuOption("Investigate", action0, MenuOptionPriority.Default, null, null, 0f, null);
                             }
@@ -69,6 +67,14 @@ namespace CultOfCthulhu
                     }
                 }
             }
+        }
+        [SyncMethod]
+        private void DoInvestigateJob(Pawn myPawn)
+        {
+            Job job = new Job(CultsDefOf.Cults_Investigate, myPawn, this);
+            job.playerForced = true;
+            myPawn.jobs.TryTakeOrderedJob(job);
+            //mypawn.CurJob.EndCurrentJob(JobCondition.InterruptForced);
         }
 
         public void MuteToggle()
@@ -105,9 +111,16 @@ namespace CultOfCthulhu
             toggleDef.isActive = (() => this.isMuted);
             toggleDef.toggleAction = delegate
             {
-                MuteToggle();
+                ToggleAction();
             };
+
             yield return toggleDef;
+        }
+
+        [SyncMethod]
+        private void ToggleAction()
+        {
+            MuteToggle();
         }
 
         public override void ExposeData()

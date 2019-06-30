@@ -33,27 +33,42 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>..\..\JecsTools\Assemblies\0Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="0JecsTools, Version=1.0.8.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\JecsTools\Assemblies\0JecsTools.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="AbilityUser">
-      <HintPath>..\..\JecsTools\Assemblies\AbilityUser.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="0JecsTools">
+      <HintPath>..\..\..\..\..\workshop\content\294100\932008009\Assemblies\0JecsTools.dll</HintPath>
+      <Private>False</Private>
+      <IncludeInPackage>false</IncludeInPackage>
+    </Reference>
+    <Reference Include="AbilityUser">
+      <HintPath>..\..\..\..\..\workshop\content\294100\932008009\Assemblies\AbilityUser.dll</HintPath>
+      <Private>False</Private>
+      <IncludeInPackage>false</IncludeInPackage>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\RimWorldLinux_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+      <IncludeInPackage>false</IncludeInPackage>
+    </Reference>
+    <Reference Include="Multiplayer">
+      <HintPath>..\..\..\..\..\workshop\content\294100\1752864297\Assemblies\Multiplayer.dll</HintPath>
+      <Private>False</Private>
+      <IncludeInPackage>false</IncludeInPackage>
+    </Reference>
+    <Reference Include="0MultiplayerAPI">
+      <HintPath>..\..\..\..\..\workshop\content\294100\1752864297\Assemblies\0MultiplayerAPI.dll</HintPath>
+      <Private>False</Private>
+      <IncludeInPackage>false</IncludeInPackage>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\..\..\workshop\content\294100\932008009\Assemblies\0Harmony.dll</HintPath>
+      <Private>False</Private>
+      <IncludeInPackage>true</IncludeInPackage>
+    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>Source-DLLs\UnityEngine.dll</HintPath>
       <Private>False</Private>
@@ -237,6 +252,7 @@
     <Compile Include="NewSystems\CosmicEntities\WorldComponent_CosmicDeities.cs" />
     <Compile Include="NewSystems\Cult\WorldComponent_GlobalCultTracker.cs" />
     <Compile Include="NewSystems\Spells\TableOfFun\WorkGiver_PruneAndRepair.cs" />
+    <Compile Include="Utilities\CultMPCompat.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

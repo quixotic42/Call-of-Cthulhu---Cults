@@ -6,6 +6,7 @@ using RimWorld;
 using Verse;
 using Verse.Sound;
 using UnityEngine;
+using Multiplayer.API;
 
 namespace CultOfCthulhu
 {
@@ -42,17 +43,7 @@ namespace CultOfCthulhu
                     command_Action.icon = ContentFinder<Texture2D>.Get("UI/Icons/Commands/FlyingTarget", true);
                     command_Action.action = delegate
                     {
-                        if (compTransporterPawn.AnyInGroupHasAnythingLeftToLoad)
-                        {
-                            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("ConfirmSendNotCompletelyLoadedPods".Translate(new object[]
-                            {
-                            compTransporterPawn.FirstThingLeftToLoadInGroup.LabelCap
-                            }), new Action(compLaunchablePawn.StartChoosingDestination), false, null));
-                        }
-                        else
-                        {
-                            compLaunchablePawn.StartChoosingDestination();
-                        }
+                        DoLaunchGroup();
                     };
                     if (compLaunchablePawn.AnyInGroupIsUnderRoof)
                     {
@@ -70,8 +61,7 @@ namespace CultOfCthulhu
                         icon = CompTransporterPawn.CancelLoadCommandTex,
                         action = delegate
                         {
-                            SoundDefOf.Designate_Cancel.PlayOneShotOnCamera();
-                            compTransporterPawn.CancelLoad();
+                            DoCancelLoad();
                         }
                     };
                 }
@@ -100,6 +90,28 @@ namespace CultOfCthulhu
                 yield return command_LoadToTransporter;
             }
             yield break;
+        }
+        [SyncMethod]
+        private void DoLaunchGroup()
+        {
+            if (compTransporterPawn.AnyInGroupHasAnythingLeftToLoad)
+            {
+                Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("ConfirmSendNotCompletelyLoadedPods".Translate(new object[]
+                {
+                            compTransporterPawn.FirstThingLeftToLoadInGroup.LabelCap
+                }), new Action(compLaunchablePawn.StartChoosingDestination), false, null));
+            }
+            else
+            {
+                compLaunchablePawn.StartChoosingDestination();
+            }
+        }
+
+        [SyncMethod]
+        private void DoCancelLoad()
+        {
+            SoundDefOf.Designate_Cancel.PlayOneShotOnCamera();
+            compTransporterPawn.CancelLoad();
         }
     }
 }

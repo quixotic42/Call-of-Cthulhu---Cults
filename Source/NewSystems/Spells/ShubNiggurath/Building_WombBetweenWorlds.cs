@@ -6,6 +6,7 @@ using Verse;
 using Verse.AI.Group;
 using RimWorld;
 using System.Text;
+using Multiplayer.API;
 
 namespace CultOfCthulhu
 {
@@ -248,14 +249,20 @@ namespace CultOfCthulhu
                 {
                     defaultLabel = "DEBUG: Spawn pawn",
                     icon = TexCommand.ReleaseAnimals,
-                    action = delegate
+                    action = delegate 
                     {
-                        Pawn pawn;
-                        this.TrySpawnPawn(out pawn, Map);
+                        SpawnPawn();
                     }
                 };
             }
             yield break;
+        }
+
+        [SyncMethod]
+        private void SpawnPawn()
+        {
+            Pawn pawn;
+            this.TrySpawnPawn(out pawn, Map);
         }
 
         public override bool PreventPlayerSellingThingsNearby(out string reason)

@@ -20,7 +20,7 @@ using Verse.AI;          // Needed when you do something with the AI
 //using Verse.Noise;       // Needed when you do something with Noises
 using RimWorld;            // RimWorld specific functions are found here (like 'Building_Battery')
 using RimWorld.Planet;
-
+using Multiplayer.API;
 //using RimWorld.Planet;   // RimWorld specific functions for world creation
 //using RimWorld.SquadAI;  // RimWorld specific functions for squad brains 
 
@@ -575,7 +575,10 @@ namespace CultOfCthulhu
             {
                 var command_Upgrade = new Command_Action
                 {
-                    action = TryUpgrade,
+                    action = delegate 
+                    {
+                        TryUpgrade();
+                    },
                     defaultLabel = "CommandUpgrade".Translate(),
                     defaultDesc = "CommandUpgrade".Translate(),
                     disabled = (!CanUpgrade() || currentFunction == Function.Nightmare),
@@ -606,7 +609,10 @@ namespace CultOfCthulhu
             {
                 var command_Action = new Command_Action
                 {
-                    action = TrySacrifice,
+                    action = delegate 
+                    {
+                        TrySacrifice();
+                    },
                     defaultLabel = "CommandCultSacrifice".Translate(),
                     defaultDesc = "CommandCultSacrificeDesc".Translate(),
                     disabled = (currentFunction < Function.Level2 || currentFunction == Function.Nightmare),
@@ -621,7 +627,9 @@ namespace CultOfCthulhu
             {
                 var command_Cancel = new Command_Action
                 {
-                    action = CancelSacrifice,
+                    action = delegate {
+                        CancelSacrifice();
+                    },
                     defaultLabel = "CommandCancelConstructionLabel".Translate(),
                     defaultDesc = "CommandCancelSacrifice".Translate(),
                     disabled = (currentFunction < Function.Level2),
@@ -635,7 +643,10 @@ namespace CultOfCthulhu
             {
                 var command_Action = new Command_Action
                 {
-                    action = TryWorshipForced,
+                    action = delegate 
+                    {
+                        TryWorshipForced();
+                    },
                     defaultLabel = "CommandForceWorship".Translate(),
                     defaultDesc = "CommandForceWorshipDesc".Translate(),
                     disabled = currentFunction == Function.Nightmare,
@@ -648,7 +659,10 @@ namespace CultOfCthulhu
             {
                 var command_Cancel = new Command_Action
                 {
-                    action = CancelWorship,
+                    action = delegate 
+                    {
+                        CancelWorship();
+                    },
                     defaultLabel = "CommandCancelConstructionLabel".Translate(),
                     defaultDesc = "CommandCancelWorship".Translate(),
                     hotKey = KeyBindingDefOf.Designator_Cancel,
@@ -661,7 +675,10 @@ namespace CultOfCthulhu
             {
                 var command_Action = new Command_Action
                 {
-                    action = TryOffering,
+                    action = delegate 
+                    {
+                        TryOffering();
+                    },
                     defaultLabel = "CommandOffering".Translate(),
                     defaultDesc = "CommandOfferingDesc".Translate(),
                     disabled = currentFunction == Function.Nightmare,
@@ -674,7 +691,10 @@ namespace CultOfCthulhu
             {
                 var command_Cancel = new Command_Action
                 {
-                    action = CancelOffering,
+                    action = delegate
+                    {
+                        CancelOffering();
+                    },
                     defaultLabel = "CommandCancelConstructionLabel".Translate(),
                     defaultDesc = "CommandCancelOffering".Translate(),
                     hotKey = KeyBindingDefOf.Designator_Cancel,
@@ -687,7 +707,10 @@ namespace CultOfCthulhu
             {
                 yield return new Command_Action
                 {
-                    action = GiveReport,
+                    action = delegate
+                    {
+                        GiveReport();
+                    },
                     defaultLabel = "CommandCultReport".Translate(),
                     defaultDesc = "CommandCultReportDesc".Translate(),
                     disabled = LastReport == "",
@@ -706,7 +729,10 @@ namespace CultOfCthulhu
                     defaultLabel = "PruneAndRepair".Translate(),
                     defaultDesc = "PruneAndRepairDesc".Translate(),
                     isActive = (() => toBePrunedAndRepaired),
-                    toggleAction = PruneAndRepairToggle
+                    toggleAction = delegate
+                    {
+                        PruneAndRepairToggle();
+                    }
                 };
             }
 
@@ -717,8 +743,7 @@ namespace CultOfCthulhu
                 defaultLabel = "Debug: Discover All Deities",
                 action = delegate
                 {
-                    foreach (var entity in DeityTracker.Get.DeityCache.Keys)
-                        entity.discovered = true;
+                    DiscoverEntity();
                 }
             };
 
@@ -728,8 +753,7 @@ namespace CultOfCthulhu
                 defaultLabel = "Debug: All Favor to 0",
                 action = delegate
                 {
-                    foreach (var entity in DeityTracker.Get.DeityCache.Keys)
-                        entity.ResetFavor();
+                    ResetEntityFavor();
                 }
             };
 
@@ -739,8 +763,7 @@ namespace CultOfCthulhu
                 defaultLabel = "Debug: Make All Colonists Cult-Minded",
                 action = delegate
                 {
-                    foreach (var p in Map.mapPawns.FreeColonistsSpawned)
-                        CultUtility.AffectCultMindedness(p, 0.99f);
+                    AffectFreeColonistCultMindedness();
                 }
             };
 
@@ -749,7 +772,7 @@ namespace CultOfCthulhu
                 defaultLabel = "Debug: Upgrade Max Level Altar",
                 action = delegate
                 {
-                    currentFunction = Function.Level3;
+                    SetMaxAltar();
                 }
             };
 
@@ -758,8 +781,7 @@ namespace CultOfCthulhu
                 defaultLabel = "Debug: Unlock All Spells",
                 action = delegate
                 {
-                    foreach (var entity in DeityTracker.Get.DeityCache.Keys)
-                        entity.AffectFavor(9999999);
+                    UnlockAllSpells();
                 }
             };
 
@@ -769,25 +791,15 @@ namespace CultOfCthulhu
                 isActive = (() => debugAlwaysSucceed),
                 toggleAction = delegate
                 {
-                    debugAlwaysSucceed = !debugAlwaysSucceed;
+                    SetAlwaysSucceed();
                 }
             };
 
             yield return new Command_Action
             {
                 defaultLabel = "Debug: Force Side Effect",
-                action = delegate
-                {
-                    var table = new CultTableOfFun();
-                    var list = (from spell in table.TableOfFun
-                        let currentDef = IncidentDef.Named(spell.defName)
-                        select new FloatMenuOption(currentDef.LabelCap, delegate
-                        {
-                            var temp = DefDatabase<IncidentDef>.GetNamed(spell.defName);
-                            if (temp != null)
-                                CultUtility.CastSpell(temp, Map);
-                        })).ToList();
-                    Find.WindowStack.Add(new FloatMenu(list));
+                action = delegate { 
+                    ForceSideEffect(); 
                 }
             };
 
@@ -796,23 +808,74 @@ namespace CultOfCthulhu
                 yield return new Command_Action
                 {
                     defaultLabel = "Debug: Force Nightmare Tree",
-                    action = NightmareEvent
+                    action = delegate 
+                    { 
+                        NightmareEvent(); 
+                    }
                 };
             }
             yield break;
         }
-
+        [SyncMethod]
+        private void ForceSideEffect()
+        {
+            var table = new CultTableOfFun();
+            var list = (from spell in table.TableOfFun
+                        let currentDef = IncidentDef.Named(spell.defName)
+                        select new FloatMenuOption(currentDef.LabelCap, delegate
+                        {
+                            var temp = DefDatabase<IncidentDef>.GetNamed(spell.defName);
+                            if (temp != null)
+                                CultUtility.CastSpell(temp, Map);
+                        })).ToList();
+            Find.WindowStack.Add(new FloatMenu(list));
+        }
+        [SyncMethod]
+        private void SetAlwaysSucceed()
+        {
+            debugAlwaysSucceed = !debugAlwaysSucceed;
+        }
+        [SyncMethod]
+        private void UnlockAllSpells()
+        {
+            foreach (var entity in DeityTracker.Get.DeityCache.Keys)
+                entity.AffectFavor(9999999);
+        }
+        [SyncMethod]
+        private void SetMaxAltar()
+        {
+            currentFunction = Function.Level3;
+        }
+        [SyncMethod]
+        private void AffectFreeColonistCultMindedness()
+        {
+            foreach (var p in Map.mapPawns.FreeColonistsSpawned)
+                CultUtility.AffectCultMindedness(p, 0.99f);
+        }
+        [SyncMethod]
+        private void ResetEntityFavor()
+        {
+            foreach (var entity in DeityTracker.Get.DeityCache.Keys)
+                entity.ResetFavor();
+        }
+        [SyncMethod]
+        private void DiscoverEntity()
+        {
+            foreach (var entity in DeityTracker.Get.DeityCache.Keys)
+                entity.discovered = true;
+        }
+        [SyncMethod]
         private void GiveReport()
         {
             Find.WindowStack.Add(new Dialog_MessageBox(LastReport));
         }
-
+        [SyncMethod]
         public void PruneAndRepairToggle() => toBePrunedAndRepaired = !toBePrunedAndRepaired;
 
         #endregion Gizmos
 
         #region LevelChangers
-
+        [SyncMethod]
         private void TryUpgrade()
         {
             if (IsCongregating())
@@ -842,6 +905,7 @@ namespace CultOfCthulhu
             ReplaceAltarWith(newDefName);
         }
 
+        [SyncMethod]
         public void NightmareEvent()
         {
             lastFunction = currentFunction;
@@ -927,6 +991,7 @@ namespace CultOfCthulhu
         #endregion LevelChangers
 
         #region Offering
+        [SyncMethod]
         private void CancelOffering()
         {
             Pawn pawn = null;
@@ -948,6 +1013,7 @@ namespace CultOfCthulhu
             //this.currentState = State.off;
             Messages.Message("Cancelling offering.", MessageTypeDefOf.NegativeEvent);
         }
+        [SyncMethod]
         private void TryOffering()
         {
             if (IsCongregating())
@@ -1042,7 +1108,7 @@ namespace CultOfCthulhu
 
         #region Sacrifice
 
-
+        [SyncMethod]
         private void CancelSacrifice()
         {
             Pawn pawn = null;
@@ -1065,6 +1131,7 @@ namespace CultOfCthulhu
             ChangeState(State.notinuse);
             Messages.Message("Cancelling sacrifice.", MessageTypeDefOf.NegativeEvent);
         }
+        [SyncMethod]
         private void TrySacrifice()
         {
             if (IsSacrificing())
